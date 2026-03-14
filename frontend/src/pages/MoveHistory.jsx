@@ -1,35 +1,71 @@
-function MoveHistory() {
-  return (
-    <div>
+import { useEffect, useState } from "react"
 
-      <h1>Stock Move History</h1>
+function MoveHistory(){
 
-      <table>
+const [history,setHistory] = useState([])
 
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Product</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Qty</th>
-          </tr>
-        </thead>
+const loadHistory = async () => {
 
-        <tbody>
-          <tr>
-            <td>10 Mar</td>
-            <td>Steel Rod</td>
-            <td>Main Store</td>
-            <td>Rack A</td>
-            <td>20</td>
-          </tr>
-        </tbody>
+const res = await fetch("http://localhost:5000/movehistory")
 
-      </table>
+const data = await res.json()
 
-    </div>
-  )
+setHistory(data)
+
+}
+
+useEffect(()=>{
+loadHistory()
+},[])
+
+return(
+
+<div>
+
+<h1>Move History</h1>
+
+<table border="1">
+
+<thead>
+
+<tr>
+<th>Type</th>
+<th>Product</th>
+<th>Quantity</th>
+<th>Date</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{history.map((h,index)=>(
+<tr key={index}>
+
+<td>{h.type}</td>
+
+<td>{h.product}</td>
+
+<td>
+{h.type === "Receipt" ? "+" : "-"}
+{h.quantity}
+</td>
+
+<td>
+{new Date(h.date).toLocaleString()}
+</td>
+
+</tr>
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+)
+
 }
 
 export default MoveHistory

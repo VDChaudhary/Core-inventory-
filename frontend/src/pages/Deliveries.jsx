@@ -1,35 +1,108 @@
-function Deliveries() {
-  return (
-    <div>
+import { useEffect,useState } from "react"
 
-      <h1>Delivery Orders</h1>
+function Deliveries(){
 
-      <button className="add-btn">Create Delivery</button>
+const [products,setProducts] = useState([])
+const [deliveries,setDeliveries] = useState([])
+const [productId,setProductId] = useState("")
+const [quantity,setQuantity] = useState(1)
 
-      <table>
+const loadProducts = async ()=>{
 
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+const res = await fetch("http://localhost:5000/products")
+const data = await res.json()
 
-        <tbody>
-          <tr>
-            <td>XYZ Furniture</td>
-            <td>Chair</td>
-            <td>10</td>
-            <td>Ready</td>
-          </tr>
-        </tbody>
+setProducts(data)
 
-      </table>
+}
 
-    </div>
-  )
+const loadDeliveries = async ()=>{
+
+const res = await fetch("http://localhost:5000/deliveries")
+const data = await res.json()
+
+setDeliveries(data)
+
+}
+
+const createDelivery = async ()=>{
+
+await fetch("http://localhost:5000/deliveries",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+productId,
+quantity
+})
+
+})
+
+loadDeliveries()
+
+}
+
+useEffect(()=>{
+loadProducts()
+loadDeliveries()
+},[])
+
+return(
+
+<div>
+
+<h1>Deliveries</h1>
+
+<select onChange={(e)=>setProductId(e.target.value)}>
+
+<option>Select Product</option>
+
+{products.map(p=>(
+<option value={p._id}>{p.name}</option>
+))}
+
+</select>
+
+<input
+type="number"
+value={quantity}
+onChange={(e)=>setQuantity(e.target.value)}
+/>
+
+<button onClick={createDelivery}>Create Delivery</button>
+
+<table border="1">
+
+<thead>
+<tr>
+<th>Product</th>
+<th>Quantity</th>
+<th>Date</th>
+</tr>
+</thead>
+
+<tbody>
+
+{deliveries.map(d=>(
+<tr key={d._id}>
+<td>{d.productName}</td>
+<td>-{d.quantity}</td>
+<td>{new Date(d.date).toLocaleString()}</td>
+</tr>
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+)
+
 }
 
 export default Deliveries
